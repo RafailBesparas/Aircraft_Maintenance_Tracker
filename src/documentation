@@ -1,3 +1,12 @@
 Tail number is the unique aircraft registration number — like a license plate for planes 🚀.
 It helps identify each aircraft individually across all countries and airlines.
 (e.g., "N12345" in USA, "D-ABCD" in Germany)
+
+1. General DO-178C Code Commenting Rules
+In your Java code, every class, method, and important logic must be documented.
+The rule is simple:
+Code Element	Comment Requirement
+Class	Purpose of the class, author, date, version
+Method	Purpose, parameters, return value, exceptions
+Complex Logic	Inline explanation if necessary
+Database Access	What queries are executed and why
