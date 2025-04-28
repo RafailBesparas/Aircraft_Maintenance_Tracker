@@ -8,49 +8,88 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Presenter class of the MVP model Model View Presenter
+ * Responsible for handling the business logic
+ * Is the coordinator between the Aircraft model and the AircraftView
+ *
+ * This class performs the database operations , queries, process the user inputs and update the view accordingly
+ * @author Rafail
+ * @version 1.0
+ * @since 2025-04-28
+ */
+
+
 public class AircraftPresenter {
+
+    //It references tto the Aircraft view component that has the role of displaying information to the user
     private AircraftView view;
 
+    //Constructor of the AircraftPresenter using the Aircraft view, updates hte view in the GUI
+    //@param view The view component to be updated by the presenter.
     public AircraftPresenter(AircraftView view) {
         this.view = view;
     }
 
+    //Load all the entries for Aircrafts from the Database and updates the view
+    //Establishes a connection to PostgreSQL and retrieve all the records.
+    // Populates the view with the aircrafts in the database
+    // If there is a database access problem. then an appropriate error message occurs
     public void loadAircraft() {
+        //List of aircrafts
         List<Aircraft> aircraftList = new ArrayList<>();
+        //Create the connection
+        //Create the statement
+        // Execute the Query to the database and retrieve results
         try (Connection conn = Database.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM aircraft")) {
 
+            //Read all the results from the query
             while (rs.next()) {
                 Aircraft aircraft = new Aircraft(
                         rs.getInt("id"),
                         rs.getString("model"),
                         rs.getString("tail_number")
                 );
+                //Add the results to the list
                 aircraftList.add(aircraft);
             }
-
+            // Show the results from the query
             view.showAircraftList(aircraftList);
-
+        //If needed throw and exception
         } catch (SQLException e) {
             view.showMessage("Error loading aircraft: " + e.getMessage());
         }
     }
 
+    //Set the view component after
+    //@param view The AircraftView implementation to associate with the presenter.
     public void setView(AircraftView view) {
         this.view = view;
     }
 
+    // Add a new aircraft entry to the database based on the user input
+    //Refresh the table when a new aircraft is added
+    //If a database insertion error occurs please throw an appropriate error
+    //@param model The model name of the new aircraft.
+    //@param tailNumber The unique registration number (tail number) of the new aircraft.
     public void addAircraft(String model, String tailNumber) {
+        //Initiate the connection to the database
         try (Connection conn = Database.getConnection();
+             //Create the statement and excecute the statement
              PreparedStatement pstmt = conn.prepareStatement(
                      "INSERT INTO aircraft (model, tail_number) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+            //Based on the user input in the first ? add the model and in the second ? add the tail number
+            //Excecute the statement to update the database
             pstmt.setString(1, model);
             pstmt.setString(2, tailNumber);
             pstmt.executeUpdate();
 
+            //Show the appropriate message
             view.showMessage("Aircraft added successfully.");
             loadAircraft();
+        //Throw an error when needed
         } catch (SQLException e) {
             view.showMessage("Error adding aircraft: " + e.getMessage());
         }
