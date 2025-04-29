@@ -34,7 +34,6 @@ In MVC, View and Controller are often tightly linked, but MVP is cleaner for lar
 - #### 2. System Overview
 - The system consists of three primary layers:
 
-
 - Layer:  Responsibility
 - Model:  Represents the Aircraft data and structure.
 - View:   Provides the user interface and displays information.

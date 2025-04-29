@@ -2,6 +2,7 @@ package org.example.presenter;
 
 import org.example.db.Database;
 import org.example.model.Aircraft;
+import org.example.model.MaintenanceTask;
 import org.example.view.AircraftView;
 
 import java.sql.*;
@@ -94,4 +95,81 @@ public class AircraftPresenter {
             view.showMessage("Error adding aircraft: " + e.getMessage());
         }
     }
-}
+
+    public void updateAircraft(int id, String newModel, String newTailNumber){
+        try(Connection conn = Database.getConnection();
+            PreparedStatement pstmt =
+                    conn.prepareStatement("UPDATE aircraft SET model = ?, tail_number = ? WHERE id = ?"))
+        {
+         pstmt.setString(1, newModel);
+         pstmt.setString(2, newTailNumber);
+         pstmt.setInt(3, id);
+         int rowsUpdated = pstmt.executeUpdate();
+
+         if(rowsUpdated > 0){
+             view.showMessage("Aircraft updated successfully.");
+         } else{
+             view.showMessage("Aircraft not found for update.");
+          }
+         loadAircraft();
+        } catch (SQLException e){
+            view.showMessage("Error updating aircraft " + e.getMessage());
+        }
+    }
+
+    public void deleteAircraft(int id){
+        try(Connection conn = Database.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement("DELETE FROM aircraft WHERE id = ?"))
+        {
+            pstmt.setInt(1, id);
+            int rowsDeleted = pstmt.executeUpdate();
+
+            if (rowsDeleted > 0) {
+                view.showMessage("Aircraft deleted successfully.");
+            } else {
+                view.showMessage("Aircraft not found for deletion.");
+            }
+            loadAircraft();
+        } catch (SQLException e) {
+            view.showMessage("Error deleting aircraft: " + e.getMessage());
+        }
+    }
+
+ ///  View for the Maintenance Tasks of Aircrafts
+
+ public void addMaintenanceTask(int aircraftId, String taskDescription, Date dueDate) {
+     try (Connection conn = Database.getConnection();
+          PreparedStatement pstmt = conn.prepareStatement(
+                  "INSERT INTO maintenance_task (aircraft_id, task_description, due_date, status) VALUES (?, ?, ?, 'Pending')")) {
+         pstmt.setInt(1, aircraftId);
+         pstmt.setString(2, taskDescription);
+         pstmt.setDate(3, new java.sql.Date(dueDate.getTime()));
+         pstmt.executeUpdate();
+         view.showMessage("Maintenance task added successfully.");
+     } catch (SQLException e) {
+         view.showMessage("Error adding maintenance task: " + e.getMessage());
+     }
+ }
+
+    public List<MaintenanceTask> loadMaintenanceTasks() {
+        List<MaintenanceTask> taskList = new ArrayList<>();
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM maintenance_task ORDER BY due_date ASC")) {
+            while (rs.next()) {
+                MaintenanceTask task = new MaintenanceTask(
+                        rs.getInt("id"),
+                        rs.getInt("aircraft_id"),
+                        rs.getString("task_description"),
+                        rs.getDate("due_date"),
+                        rs.getString("status")
+                );
+                taskList.add(task);
+            }
+        } catch (SQLException e) {
+            view.showMessage("Error loading maintenance tasks: " + e.getMessage());
+        }
+        return taskList;
+    }
+
+}// End of class
