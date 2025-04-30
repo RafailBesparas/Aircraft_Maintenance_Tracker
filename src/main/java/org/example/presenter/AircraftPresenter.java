@@ -10,16 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Presenter class of the MVP model Model View Presenter
- * Responsible for handling the business logic
- * Is the coordinator between the Aircraft model and the AircraftView
+ * Handles the Business Logic for the Aircraft Maintenance Tracker application Powered By Rafael Besparas
  *
- * This class performs the database operations , queries, process the user inputs and update the view accordingly
+ * This class is the Presenter In the MVP Model and is also the mediator that links the View with the Model
+ *
+ * Main responsibilities of this Class include:
+ * 1. Database Crud Operations (Create, Read, Update, Delete) for the Aircraft and Maintenance Tasks
+ * 2. Loading the data and then forwarding it to the view
+ * 3. Receiving and accepting the User actions from the View and processing them
+ *
  * @author Rafail
- * @version 1.0
+ * @version 2.0
  * @since 2025-04-28
  */
-
 
 public class AircraftPresenter {
 
@@ -96,14 +99,20 @@ public class AircraftPresenter {
         }
     }
 
+    // Updates the model and tail number for the Aircraft
     public void updateAircraft(int id, String newModel, String newTailNumber){
+        // Establish the connection with the database and also query the database to update the information
         try(Connection conn = Database.getConnection();
             PreparedStatement pstmt =
                     conn.prepareStatement("UPDATE aircraft SET model = ?, tail_number = ? WHERE id = ?"))
         {
+         // Get the data from the user from the GUI
+         // In the first ? add the model provided by the user
+         // In the second ? add the tailnumber provided by the user
          pstmt.setString(1, newModel);
          pstmt.setString(2, newTailNumber);
          pstmt.setInt(3, id);
+         // Check if the update has happened to show the appropriate message
          int rowsUpdated = pstmt.executeUpdate();
 
          if(rowsUpdated > 0){
@@ -111,19 +120,25 @@ public class AircraftPresenter {
          } else{
              view.showMessage("Aircraft not found for update.");
           }
+         // load the list of aircrafts and update the view
          loadAircraft();
         } catch (SQLException e){
             view.showMessage("Error updating aircraft " + e.getMessage());
         }
     }
 
+    // Delete the aircraft from the database and from the view
     public void deleteAircraft(int id){
+        //Establish the connection and Query the database to delete the aircraft
         try(Connection conn = Database.getConnection();
             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM aircraft WHERE id = ?"))
         {
+            // Based on the Aircraft chosen in the GUI delete it from the Database and View
             pstmt.setInt(1, id);
+            //Check if the action was implemented
             int rowsDeleted = pstmt.executeUpdate();
 
+            // Show the appropriate message
             if (rowsDeleted > 0) {
                 view.showMessage("Aircraft deleted successfully.");
             } else {
@@ -137,10 +152,22 @@ public class AircraftPresenter {
 
  ///  View for the Maintenance Tasks of Aircrafts
 
+    /**
+     * Add a maintenance task for a given aircraft.
+     * Choose it from the GUI, click on it and then press Add Maintenance Task
+     *
+     * @param aircraftId ID of the aircraft to associate the task with
+     * @param taskDescription The description of the task
+     * @param dueDate Due date for the task (as java.sql.Date)
+     */
  public void addMaintenanceTask(int aircraftId, String taskDescription, Date dueDate) {
+     // Establish connection to the database
+     // Query the database to insert the task information and create a new task
      try (Connection conn = Database.getConnection();
           PreparedStatement pstmt = conn.prepareStatement(
                   "INSERT INTO maintenance_task (aircraft_id, task_description, due_date, status) VALUES (?, ?, ?, 'Pending')")) {
+         //Based on the User input in the first ? add the aircraftId, based on the 2 ? add the task description
+         //For the due date we have a certain day format to be used
          pstmt.setInt(1, aircraftId);
          pstmt.setString(2, taskDescription);
          pstmt.setDate(3, new java.sql.Date(dueDate.getTime()));
@@ -151,19 +178,36 @@ public class AircraftPresenter {
      }
  }
 
+    /**
+     * Retrieves and returns all maintenance tasks from the database, joined with aircraft info.
+     *
+     * @return List of MaintenanceTask objects sorted by due date
+     */
     public List<MaintenanceTask> loadMaintenanceTasks() {
+        // Create a list of the maintenance Tasks based on the Data Strucutre ArrayList
         List<MaintenanceTask> taskList = new ArrayList<>();
+        //Establish connection and also create a query
         try (Connection conn = Database.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM maintenance_task ORDER BY due_date ASC")) {
+             // This query retrieves all maintenance tasks and their linked aircraft information (model + tail number),
+             // ordered by task due date from earliest to latest.
+             ResultSet rs = stmt.executeQuery(
+                     "SELECT mt.id, mt.aircraft_id, a.model, a.tail_number, mt.task_description, mt.due_date, mt.status " +
+                             "FROM maintenance_task mt JOIN aircraft a ON mt.aircraft_id = a.id ORDER BY mt.due_date ASC")) {
+
+            // Show all the tasks in the database
             while (rs.next()) {
+                // Concatenate the Model and the tail number to create the display name
+                String displayName = rs.getString("model") + " (" + rs.getString("tail_number") + ")";
                 MaintenanceTask task = new MaintenanceTask(
                         rs.getInt("id"),
                         rs.getInt("aircraft_id"),
+                        displayName,
                         rs.getString("task_description"),
                         rs.getDate("due_date"),
                         rs.getString("status")
                 );
+                // Add the task to the list of tasks
                 taskList.add(task);
             }
         } catch (SQLException e) {

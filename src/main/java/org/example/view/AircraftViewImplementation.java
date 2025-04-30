@@ -17,9 +17,16 @@ import java.util.List;
  * Implementation of the AircraftView interface
  * This class also provides a GUI to interact with the Aircraft Maintenance Tracker System.
  * First is to allow users to add new aircrafts and view the aircrafts stored in the database
+ *
+ * New Changes in the version 2
+ * The user can update and delete aircrafts
+ *
+ * GUI behavior is driven by event listeners on various buttons, enabling full CRUD
+ * functionality and maintenance scheduling in an MVP-compliant architecture
+ *
  * @author Rafail
- * @version 1.0
- * @since 2025-04-28
+ * @version 2.0
+ * @since 2025-04-30
  */
 
 public class AircraftViewImplementation extends JFrame implements AircraftView {
@@ -30,8 +37,12 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
     // List model from SWING Library to manage aircraft list entries to the GUI
     private DefaultListModel<String> listModel;
 
+    // This diplays the list of strings which actually are the list of Aircrafts
     private JList<String> aircraftList;
 
+    // This hidden data structure holds actually the list of aircrafts
+    // It is used internally
+    // This allows to connect the GUI selection with the real Aircraft record later in the code
     private List<Aircraft> aircraftData;
 
     // Initializing the GUI Components
@@ -43,6 +54,7 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
 
     // Sets the graphical user interface components including the aircraft list and the Add Button
     // The user can input a new aircraft model and tail number through the prompt
+    // The user also can update and delete aircrafts.
     // The data is forwarded to the presenter  for validation and storage
     private void setupUI() {
         //Title to be displayed in the GUI
@@ -55,8 +67,10 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
         //Create a data container for a lsit of items, add or remove items to automatically update
         listModel = new DefaultListModel<>();
 
+        // List of aircrafts
         aircraftList = new JList<>(listModel);
 
+        // Hidden data structure holding the actual aircraft objects
         aircraftData = new ArrayList<>();
 
         // Button to add an aircraft and also the logic on Event handling and what to do in this button
@@ -72,6 +86,9 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
             }
         });
 
+        // Button to update an aircraft. Select it in the GUI and update the information
+        // Ask the user to provide new Model and new Tail Number
+        // Pass the data to Presenter and use the add aircraft method to update the aircraft information
         JButton updateButton = new JButton("Update Aircraft");
         updateButton.addActionListener((ActionEvent e) -> {
             int selectedIndex = aircraftList.getSelectedIndex();
@@ -87,11 +104,14 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
             }
         });
 
+        // Button to delete an aircraft. Select it in the GUI and delete the information
+        // Pass the data to Presenter that will delete the selected Aircraft from the Database.
         JButton deleteButton = new JButton("Delete Aircraft");
         deleteButton.addActionListener((ActionEvent e) -> {
             int selectedIndex = aircraftList.getSelectedIndex();
             if (selectedIndex != -1) {
                 Aircraft selectedAircraft = aircraftData.get(selectedIndex);
+                // Show a message to the user if wants to delete the aircraft
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "Are you sure you want to delete this aircraft?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
@@ -102,6 +122,11 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
             }
         });
 
+        // Button to add a task
+        // Click on the selected aircraft then click on the add maintenance task
+        // Enter the description and due data
+        // The data is passed into the Presented which will help to add the task into the database
+        // The task is then visible into the Maintenance task GUI not the Aircraft GUI
         JButton addTaskButton = new JButton("Add Maintenance Task");
         addTaskButton.addActionListener((ActionEvent e) -> {
             int selectedIndex = aircraftList.getSelectedIndex();
@@ -109,6 +134,8 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
                 Aircraft selectedAircraft = aircraftData.get(selectedIndex);
                 String description = JOptionPane.showInputDialog("Enter Task Description:");
                 String dueDateStr = JOptionPane.showInputDialog("Enter Due Date (YYYY-MM-DD):");
+                // This was created to check the data passed and because I have encoutered a lot of bugs to get the
+                // appropriate date format
                 try {
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                     formatter.setLenient(false);
@@ -123,12 +150,15 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
             }
         });
 
+        // The button that when clikced will show the Maintenance Task GUI
         JButton viewTasksButton = new JButton("View Maintenance Tasks");
         viewTasksButton.addActionListener((ActionEvent e) -> {
             List<MaintenanceTask> tasks = presenter.loadMaintenanceTasks();
             new MaintenanceTaskViewer(tasks);
         });
 
+        // The button panel is an object that will contain all the buttons
+        // A single layout like a pane with the buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(2, 3));
         buttonPanel.add(addButton);
@@ -136,8 +166,6 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
         buttonPanel.add(deleteButton);
         buttonPanel.add(addTaskButton);
         buttonPanel.add(viewTasksButton);
-
-
 
         // Show where the Aircraft list will be showed. In the Center.
         getContentPane().add(new JScrollPane(aircraftList), BorderLayout.CENTER);
