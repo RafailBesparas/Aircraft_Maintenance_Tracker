@@ -1,41 +1,106 @@
-## How the program architecture is organized (MVP pattern, database structure).
+# Software Design Description (Updated for Version 2)
 
-### Why use MVP Design Pattern
-To separate concerns clearly between data, user interface, and application logic.
+## 1. Introduction
 
-This separation improves:
+### 1.1 Purpose
+This document provides the software design for the Aircraft Maintenance Tracker, Version 2. It supports DO-178C objectives by documenting the internal architecture, component interactions, and data structures used to implement the software requirements described in the Software Requirements Specification (SRS).
 
-Modularity (each part can be developed and tested independently),
+### 1.2 Scope
+This version introduces maintenance task scheduling and tracking, aircraft record management, and GUI enhancements. The software is implemented in Java using the Swing library for GUI and PostgreSQL for persistence. The design adheres to the Model-View-Presenter (MVP) architectural pattern.
 
-Maintainability (easier to fix bugs or add features),
+## 2. System Overview
 
-Traceability (important for DO-178C compliance),
+The Aircraft Maintenance Tracker is a desktop-based application composed of the following high-level components:
+- **Model:** Represents domain entities (`Aircraft`, `MaintenanceTask`).
+- **View:** Manages GUI display (`AircraftViewImplementation`, `MaintenanceTaskViewer`).
+- **Presenter:** Controls application logic (`AircraftPresenter`).
+- **Database:** Stores aircraft and maintenance data in relational tables.
 
-Testability (presenter can be tested without needing a real UI).
+## 3. System Architecture
 
-Model	Represents the data (Aircraft information stored in PostgreSQL).
-View	Displays information to the user (Java Swing GUI).
-Presenter	Handles the business logic (coordinates Model and View, handles user actions).
+```
++----------------------+       +----------------------+       +----------------------+
+|      View Layer      | <-->  |   Presenter Layer    | <-->  |      Model Layer     |
+| (Swing UI Classes)   |       |  (Business Logic)    |       |  (Aircraft, Tasks)   |
++----------------------+       +----------------------+       +----------------------+
+                                        |
+                                        v
+                              +----------------------+
+                              |   PostgreSQL DB      |
+                              +----------------------+
+```
 
-# Why MVP instead of MVC
-MVP improves testability because the Presenter is fully independent of the View implementation.
+### 3.1 MVP Roles
+| Component | Class(es) | Description |
+|-----------|-----------|-------------|
+| Model | `Aircraft`, `MaintenanceTask` | Represents persistent domain data. |
+| View | `AircraftViewImplementation`, `MaintenanceTaskViewer` | Provides the user interface. |
+| Presenter | `AircraftPresenter` | Coordinates data loading, event responses, and view updates. |
 
-In MVC, View and Controller are often tightly linked, but MVP is cleaner for large projects needing certification, where traceability and verifiable separation are crucial (as per DO-178C).
+## 4. Module Design
 
-# 1. Introduction
-  
-- #### 1.1 Purpose
-- This Software Design Description (SDD) describes the system architecture, module decomposition, and internal data structures of the Aircraft Maintenance Tracker system.
-- The design follows the Model-View-Presenter (MVP) architectural pattern to maintain modularity, separation of concerns, testability, and traceability under DO-178C guidelines.
+### 4.1 Aircraft.java
+- Fields: `id`, `model`, `tailNumber`
+- Used to represent aircraft data throughout the system.
 
-- #### 1.2 Scope
-- The Aircraft Maintenance Tracker allows users to add and view aircraft records stored in a PostgreSQL database through a Java Swing GUI.
+### 4.2 MaintenanceTask.java
+- Fields: `id`, `aircraftId`, `taskDescription`, `dueDate`, `status`, `aircraftDisplayName`
+- Used to store and display scheduled maintenance data.
 
-- #### 2. System Overview
-- The system consists of three primary layers:
+### 4.3 AircraftPresenter.java
+- Core logic controller:
+    - `loadAircraft()`, `addAircraft()`, `updateAircraft()`, `deleteAircraft()`
+    - `addMaintenanceTask()` and `loadMaintenanceTasks()`
+    - SQL queries to interact with the database
 
-- Layer:  Responsibility
-- Model:  Represents the Aircraft data and structure.
-- View:   Provides the user interface and displays information.
-- Presenter: 	Manages business logic, connecting Model and View.
-- Each layer: communicates strictly according to MVP principles.
+### 4.4 AircraftViewImplementation.java
+- Main GUI interface
+- Handles user inputs for aircraft and task creation
+- Triggers presenter actions
+
+### 4.5 MaintenanceTaskViewer.java
+- Displays all tasks in a sorted table view
+- Uses `JTable` for clean tabular layout
+
+## 5. Data Design
+
+### 5.1 Database Tables
+
+#### aircraft
+| Field | Type | Description |
+|-------|------|-------------|
+| id | SERIAL | Primary key |
+| model | VARCHAR | Aircraft model |
+| tail_number | VARCHAR | Registration code |
+
+#### maintenance_task
+| Field | Type | Description |
+|-------|------|-------------|
+| id | SERIAL | Primary key |
+| aircraft_id | INT | Foreign key to aircraft.id |
+| task_description | VARCHAR | Task details |
+| due_date | DATE | When task is due |
+| status | VARCHAR | Task state: "Pending" or "Completed" |
+
+## 6. Error Handling
+
+- View layer shows dialog messages for exceptions
+- Presenter logs and routes errors from failed DB operations
+- Date parsing is strictly validated with format `yyyy-MM-dd`
+
+## 7. Security and Validation
+
+- No authentication in Version 2
+- Input validation includes:
+    - Date format enforcement
+    - Null/empty check for task and aircraft entries
+
+## 8. Design for Future Enhancements
+
+- Status toggle for maintenance tasks (e.g., mark completed)
+- PDF export support
+- User login and role-based access
+
+---
+
+This SDD reflects the working implementation of Version 2 and supports future extension while preserving DO-178C traceability and modular software structure.
