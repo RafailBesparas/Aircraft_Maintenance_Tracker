@@ -14,7 +14,7 @@
     <description>A Java Swing and PostgreSQL application for tracking aircraft maintenance schedule.</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>  <!-- or 11/21 depending on your Java version -->
+        <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
@@ -23,32 +23,30 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.1</version> <!-- latest as of 2025 -->
+            <version>42.7.1</version>
         </dependency>
 
-        <!-- Optional: SLF4J API for logging -->
+        <!-- JUnit Jupiter for testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- SLF4J Logging API -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>2.0.9</version>
         </dependency>
 
-        <!-- Optional: Logback for concrete logging implementation -->
+        <!-- Logback Implementation for SLF4J -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.4.11</version>
         </dependency>
-
-        <!-- Optional: For future - PDF export (iText) -->
-        <!--
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itext7-core</artifactId>
-            <version>7.2.5</version>
-            <type>pom</type>
-        </dependency>
-        -->
     </dependencies>
 
     <build>
@@ -63,7 +61,20 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+
+            <!-- Maven JAR Plugin for executable jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.example.app.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>

@@ -1,29 +1,19 @@
-# Links each requirement to corresponding design and tests.
+# Traceability Matrix (Version 2)
 
-# 1. Introduction
-- The Traceability Matrix shows the mapping between:
-- Requirements from the SRS (what the system must do),
-- Design Modules from the SDD (how the system implements it),
-- Verification Tests from the Verification Plan (how we test it).
-- This ensures that every requirement is implemented and verified, as required by DO-178C.
+This matrix maps software requirements (from the SRS) to their design components, implementation, and verification tests.
 
-- #### 2. Traceability Table
+| Requirement ID | Requirement Description                                                                 | Design Component(s)                            | Verification Method/Test ID     |
+|----------------|------------------------------------------------------------------------------------------|------------------------------------------------|-------------------------------|
+| REQ-01         | The system shall allow users to create, view, update, and delete aircraft records.      | Aircraft.java, AircraftPresenter.java, AircraftViewImplementation.java | CRUD Tests, GUI Tests, T-01 to T-03 |
+| REQ-02         | The system shall persist aircraft and maintenance task records in a PostgreSQL database. | Database.java, SQL schema                     | DatabaseTest.java, T-04       |
+| REQ-03         | The system shall allow scheduling of maintenance tasks with due date and status.        | MaintenanceTask.java, AircraftPresenter.java, AircraftViewImplementation.java | Task Add + View GUI Tests, T-05 |
+| REQ-04         | The system shall retrieve and display all aircraft and tasks on demand.                 | AircraftPresenter.java, AircraftViewImplementation.java, MaintenanceTaskViewer.java | GUI Integration Test, T-06     |
+| REQ-05         | The system shall provide a GUI window to list all maintenance tasks sorted by due date. | MaintenanceTaskViewer.java                    | Task Viewer GUI Launch Test, T-07 |
+| REQ-06         | The system shall validate date input in YYYY-MM-DD format.                              | AircraftViewImplementation.java                | Manual + Unit Date Input Test, T-08 |
+| REQ-07         | The system shall use model and tail number in task UI, not database IDs.                | MaintenanceTask.java, MaintenanceTaskViewer.java, AircraftPresenter.java | Task Display Test, T-09         |
+| REQ-08         | The system shall alert users to any critical errors such as failed DB operations.       | AircraftViewImplementation.java, AircraftPresenter.java | Error Injection Test, T-10     |
 
-##### Requirement ID	Requirement Description	Design Component(s)	Verification Test ID	Status
-- REQ-01	Add a new aircraft record (model and tail number).	AircraftPresenter, AircraftViewImplementation	T-01	Implemented and Tested ✅
-- REQ-02	Store aircraft records persistently in PostgreSQL.	AircraftPresenter, Database	T-02	Implemented and Tested ✅
-- REQ-03	Retrieve and display all aircraft on startup.	AircraftPresenter, AircraftViewImplementation	T-03	Implemented and Tested ✅
-- REQ-04	Display user-friendly messages for operations.	AircraftPresenter, AircraftViewImplementation	T-04	Implemented and Tested ✅
+---
 
-- #### 📋 Key
-- Column:	Meaning
-- Requirement: ID	As defined in SRS
-- Requirement: Description	What the system must do
-- Design Component(s):	Classes or modules that implement the requirement
-- Verification: Test ID	Specific test verifying the implementation
-- Status:	Whether it is implemented and verified
-
-- #### 3. Notes
-- No requirement is left unimplemented.
-- Every requirement is covered by at least one design component and verified by at least one test case.
-- Changes in requirements must update this matrix accordingly (as per DO-178C Change Control).
+- T-01 to T-10 refer to tests defined in the Verification Plan.
+- This matrix ensures full forward and backward traceability in line with DO-178C practices.
