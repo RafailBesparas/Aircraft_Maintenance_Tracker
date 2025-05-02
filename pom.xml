@@ -26,6 +26,13 @@
             <version>42.7.1</version>
         </dependency>
 
+        <!-- Dependency needed for Excel uploading -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+
         <!-- JUnit Jupiter for testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

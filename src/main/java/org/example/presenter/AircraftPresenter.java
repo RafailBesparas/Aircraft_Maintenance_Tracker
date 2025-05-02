@@ -5,25 +5,31 @@ import org.example.model.Aircraft;
 import org.example.model.MaintenanceTask;
 import org.example.view.AircraftView;
 
+// For the GUI and Java Queries to work
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Handles the Business Logic for the Aircraft Maintenance Tracker application Powered By Rafael Besparas
- *
- * This class is the Presenter In the MVP Model and is also the mediator that links the View with the Model
- *
- * Main responsibilities of this Class include:
- * 1. Database Crud Operations (Create, Read, Update, Delete) for the Aircraft and Maintenance Tasks
- * 2. Loading the data and then forwarding it to the view
- * 3. Receiving and accepting the User actions from the View and processing them
- *
- * @author Rafail
- * @version 2.0
- * @since 2025-04-28
- */
+// ========================= DO-178C MODULE HEADER =========================
+// Module Name    : AircraftPresenter.java
+// Application    : Aircraft Maintenance Tracker
+// Description    : Presenter layer in MVP architecture. Manages logic flow between
+//                  view and model layers including database access, data mutation,
+//                  and user feedback.
+// Safety Level   : DAL C (data processing and user command interpretation)
+// Developed By   : Rafail
+// Last Modified  : 2025-05-02
+// ========================================================================
 
+
+/**
+ * AircraftPresenter is the central coordinator in the MVP design pattern.
+ *
+ * Responsibilities:
+ *  - Mediates between AircraftView and database models
+ *  - Implements business logic
+ *  - Ensures traceable flow of actions and updates
+ */
 public class AircraftPresenter {
 
     //It references tto the Aircraft view component that has the role of displaying information to the user
@@ -67,8 +73,11 @@ public class AircraftPresenter {
         }
     }
 
-    //Set the view component after
-    //@param view The AircraftView implementation to associate with the presenter.
+    /**
+     * Updates the view reference for delayed initialization.
+     *
+     * @param view AircraftView instance to bind
+     */
     public void setView(AircraftView view) {
         this.view = view;
     }
@@ -127,7 +136,12 @@ public class AircraftPresenter {
         }
     }
 
-    // Delete the aircraft from the database and from the view
+    /**
+     * Deletes an aircraft from the database by ID.
+     * Triggers full view reload to reflect the change.
+     *
+     * @param id Aircraft ID to delete
+     */
     public void deleteAircraft(int id){
         //Establish the connection and Query the database to delete the aircraft
         try(Connection conn = Database.getConnection();
@@ -150,7 +164,11 @@ public class AircraftPresenter {
         }
     }
 
- ///  View for the Maintenance Tasks of Aircrafts
+    // ==================== MAINTENANCE TASK OPERATIONS ====================
+    // ==================== MAINTENANCE TASK OPERATIONS ====================
+    // ==================== MAINTENANCE TASK OPERATIONS ====================
+
+    ///  View for the Maintenance Tasks of Aircrafts
 
     /**
      * Add a maintenance task for a given aircraft.
@@ -214,6 +232,36 @@ public class AircraftPresenter {
             view.showMessage("Error loading maintenance tasks: " + e.getMessage());
         }
         return taskList;
+    }
+
+    /**
+     * Loads and returns all aircrafts without directly displaying them.
+     * Used in dropdowns, data selectors, views and GUIs.
+     *
+     * @return List of aircraft from database
+     */
+    public List<Aircraft> getAircraftList() {
+        // Initialize a list to store the aircraft objects returned from the database
+        List<Aircraft> aircraftList = new ArrayList<>();
+        // Establish connection in the database, use a statement/query and run it in the database
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             // Query to get results
+             ResultSet rs = stmt.executeQuery("SELECT * FROM aircraft")) {
+            // For all the resutls from the query, read them and Construct an Aircraft object from the current row's
+            while (rs.next()) {
+                aircraftList.add(new Aircraft(
+                        rs.getInt("id"), // Fetch the aircraft id
+                        rs.getString("model"), // Fetch the aircraft model
+                        rs.getString("tail_number") // Fetsch the tail number
+                ));
+            }
+            // If a database error occurs, display the error message to the user
+        } catch (SQLException e) {
+            view.showMessage("Error loading aircraft list: " + e.getMessage());
+        }
+        // Return the complete list of Aircraft
+        return aircraftList;
     }
 
 }// End of class

@@ -4,15 +4,24 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+// ========================= DO-178C MODULE HEADER =========================
+// Module Name    : Database.java
+// Application    : Aircraft Maintenance Tracker
+// Description    : Provides centralized database connection logic.
+// Safety Level   : DAL C or higher (Data Integrity is critical)
+// Developed By   : Rafail
+// Last Modified  : 2025-04-28
+// Notes          : Hardcoded credentials pose a security risk in aviation applications
+// ========================================================================
+
 /**
- * Utility classes responsible for managing database connections to the PostgreSQL server
- * Provides a centralized mechanism to establish connections required by the application
+ * Database: Utility class for managing PostgreSQL connections.
  *
- * Security note the credentials are hardcoded so for a production level application it is adviced
- * that the creadentials must be externalized
- * @author Rafail
- * @version 1.0
- * @since 2025-04-28
+ * ⚠️ SECURITY WARNING:
+ * Credentials are currently hardcoded. This violates DO-178C and secure software practices.
+ * For production or certifiable systems:
+ *   - Externalize credentials to a secure config or keystore
+ *   - Use environment variables or encryption mechanisms
  */
 
 public class Database {

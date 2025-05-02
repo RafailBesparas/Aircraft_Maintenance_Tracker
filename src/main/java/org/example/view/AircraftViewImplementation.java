@@ -3,6 +3,8 @@ package org.example.view;
 import org.example.model.Aircraft;
 import org.example.model.MaintenanceTask;
 import org.example.presenter.AircraftPresenter;
+import org.example.util.AircraftImportHandler;
+import org.example.util.MaintenanceTaskImportHandler;
 
 import javax.swing.*;
 
@@ -40,15 +42,20 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
     // This diplays the list of strings which actually are the list of Aircrafts
     private JList<String> aircraftList;
 
+    private MaintenanceDashboardPanel dashboard;
+
     // This hidden data structure holds actually the list of aircrafts
     // It is used internally
     // This allows to connect the GUI selection with the real Aircraft record later in the code
     private List<Aircraft> aircraftData;
 
+    private boolean honeyTrapMode;
+
     // Initializing the GUI Components
     //@param presenter The AircraftPresenter instance of the business logic between model and view.
-    public AircraftViewImplementation(AircraftPresenter presenter) {
+    public AircraftViewImplementation(AircraftPresenter presenter, boolean honeyTrapMode) {
         this.presenter = presenter;
+        this.honeyTrapMode = honeyTrapMode;
         setupUI();
     }
 
@@ -157,19 +164,63 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
             new MaintenanceTaskViewer(tasks);
         });
 
+        JButton importButton = new JButton("Import Aircraft");
+        importButton.addActionListener(e -> {
+            AircraftImportHandler.importAircraftFromFile(this);
+            presenter.loadAircraft();
+        });
+
+        JButton importTaskButton = new JButton("Import Maintenance Tasks");
+        importTaskButton.addActionListener(e -> {
+            MaintenanceTaskImportHandler.importTasksFromFile(this);
+        });
+
+        JButton viewDetailsButton = new JButton("View Details");
+        viewDetailsButton.addActionListener((ActionEvent e) -> {
+            int selectedIndex = aircraftList.getSelectedIndex();
+            if (selectedIndex != -1) {
+                Aircraft selectedAircraft = aircraftData.get(selectedIndex);
+                List<MaintenanceTask> allTasks = presenter.loadMaintenanceTasks();
+                new AircraftDetailView(this, selectedAircraft, allTasks);
+            } else {
+                showMessage("Please select an aircraft to view details.");
+            }
+        });
+
+        if (honeyTrapMode) {
+            addButton.setEnabled(false);
+            updateButton.setEnabled(false);
+            deleteButton.setEnabled(false);
+            addTaskButton.setEnabled(false);
+            viewTasksButton.setEnabled(false);
+            viewDetailsButton.setEnabled(false);
+            importButton.setEnabled(false);
+            importTaskButton.setEnabled(false);
+        }
+
         // The button panel is an object that will contain all the buttons
         // A single layout like a pane with the buttons
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(2, 3));
+        buttonPanel.setLayout(new GridLayout(3, 3));
+        buttonPanel.add(importButton);
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(addTaskButton);
         buttonPanel.add(viewTasksButton);
+        buttonPanel.add(importTaskButton);
+        buttonPanel.add(viewDetailsButton);
+
+        dashboard = new MaintenanceDashboardPanel(presenter);
+
+
+
 
         // Show where the Aircraft list will be showed. In the Center.
         getContentPane().add(new JScrollPane(aircraftList), BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        getContentPane().add(dashboard, BorderLayout.NORTH);
+
 
         //presenter.loadAircraft();
         //Show the window on the screen
@@ -194,6 +245,15 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
     public void showMessage(String message) {
         //Show the message to the application Pane/GUI
         JOptionPane.showMessageDialog(this, message);
+    }
+
+    public void loadFakeAircraft() {
+        List<Aircraft> fakeList = List.of(
+                new Aircraft(9991, "FakeJet 1000", "F-JET1"),
+                new Aircraft(9992, "Phantom 200", "P-200"),
+                new Aircraft(9993, "GhostRider X", "G-RDX")
+        );
+        showAircraftList(fakeList);
     }
 
 }
