@@ -247,6 +247,7 @@ public class AircraftViewImplementation extends JFrame implements AircraftView {
         JOptionPane.showMessageDialog(this, message);
     }
 
+    // Method for showing a list of Fake aircrafts for the honey trap
     public void loadFakeAircraft() {
         List<Aircraft> fakeList = List.of(
                 new Aircraft(9991, "FakeJet 1000", "F-JET1"),
