@@ -1,74 +1,94 @@
-# ✈️ Aircraft Maintenance Tracker — Version 2
+# ✈️ Aircraft Maintenance Tracker — Version 3
 
 ## Overview
 
-The **Aircraft Maintenance Tracker** is a Java Swing + PostgreSQL application designed to record, manage, and monitor aircraft information and scheduled maintenance activities.  
-The project architecture and documentation are structured according to **DO-178C** aviation software standards, emphasizing **modularity**, **traceability**, and **maintainability**.
+The **Aircraft Maintenance Tracker** is a Java Swing + PostgreSQL application for managing aircraft records and scheduled maintenance activities.  
+Version 3 introduces **authentication**, **decoy protection**, **data import tools**, and a **KPI dashboard**, continuing to align with **DO-178C** DAL C guidelines for aviation-grade software.
 
-✅ Built using **Model-View-Presenter (MVP)** design pattern for clear separation of concerns.  
-✅ Fully documented for software certification and real-world maintainability.
+✅ Developed using the **Model-View-Presenter (MVP)** architecture  
+✅ Structured for **traceability**, **testability**, and **certification readiness**  
+✅ Includes complete documentation: **SRS**, **SDD**, **Verification Plan**, and **Traceability Matrix**
 
 ---
 
-## ✈️ Features
+## ✈️ Key Features (v3)
 
-### Aircraft Management
-- Add new Aircraft (Model, Tail Number)
-- View Aircraft List
-- Update Aircraft Details
-- Delete Aircraft Records
+### 🔐 Authentication & Security
+- Password login system
+- **Honeytrap mode** for decoy deployment and access logging
+- Access attempts logged in `security-audit.log`
 
-### Maintenance Task Scheduling
-- Assign Maintenance Tasks to specific Aircraft
-- Track Due Dates and Task Descriptions
-- Tasks sorted automatically by Due Date
-- Add Maintenance Tasks with strict date validation (YYYY-MM-DD)
+### 🛫 Aircraft Management
+- Add, update, and delete aircraft (Model + Tail Number)
+- Aircraft view with readable labels
+- Aircraft detail popups with task status summaries
 
-### Maintenance Task Viewer
-- GUI window displaying all scheduled maintenance tasks
-- Aircraft ID, Task Description, Due Date, and Status visible
-- Future-Proof: Designed to support Overdue Alerts and Task Completion updates
+### 🧰 Maintenance Task Scheduling
+- Add tasks to specific aircraft with due dates and status
+- Task viewer with tabular layout and sort by due date
+- Task status: **Pending** or **Completed**
+
+### 📊 Maintenance Dashboard (KPIs)
+- Total aircraft in fleet
+- Pending maintenance task count
+- Completed tasks for the current month
+
+### 📁 Bulk Data Import (NEW)
+- Import aircraft and tasks from **CSV**, **XML**, and **Excel**
+- Duplicate filtering (tail number)
+- File chooser UI for secure ingestion
 
 ---
 
 ## 📋 System Architecture
 
-| Layer | Description |
-|:------|:------------|
-| Model | `Aircraft.java`, `MaintenanceTask.java` — Data entities |
-| View | `AircraftViewImplementation.java`, `MaintenanceTaskViewer.java` — GUI components |
-| Presenter | `AircraftPresenter.java` — Business logic connecting Model and View |
-| Database | PostgreSQL backend with `aircraft` and `maintenance_task` tables |
+| Layer     | Components                                                                 |
+|-----------|----------------------------------------------------------------------------|
+| Model     | `Aircraft.java`, `MaintenanceTask.java`                                    |
+| View      | `AircraftViewImplementation`, `MaintenanceTaskViewer`, `DashboardPanel`, `AircraftDetailView`, `LoginWindow` |
+| Presenter | `AircraftPresenter.java` (connects model and view)                         |
+| Utility   | `AircraftImportHandler`, `MaintenanceTaskImportHandler`, `Database.java`  |
+| Database  | PostgreSQL with `aircraft` and `maintenance_task` tables                  |
 
-Designed following **MVP Architecture** principles to guarantee modularity and testability.
-
----
-
-## 🛫 Technologies Used
-
-| Technology | Purpose |
-|:-----------|:--------|
-| Java 17 | Core application code |
-| Swing | GUI interface |
-| PostgreSQL | Relational database |
-| JDBC | Database connectivity |
-| Maven | Project management and dependencies |
-| Git | Version control (Version 2 Branch) |
+Follows **MVP Design Pattern** for decoupled, modular, and certifiable software structure.
 
 ---
 
-## 🔒 Compliance Focus
+## 🧪 Verification & Compliance
 
-- Designed following **DO-178C** Level D guidelines (basic modularity, traceability, error handling).
-- Software Requirements Specification (SRS), Software Design Description (SDD), Verification Plan (VP), and Traceability Matrix (TM) are being prepared to ensure full certification traceability.
-- Emphasis on **separation of concerns**, **error handling**, and **testability**.
+- **DO-178C DAL C**-oriented software assurance
+- ✅ Full traceability across SRS → SDD → Tests
+- ✅ Audit log of decoy mode
+- ✅ Validated through:
+    - Manual GUI testing
+    - JUnit 5 for DB and logic
+    - Static code inspection
+- 📄 Docs included:
+    - `Software_Requirements_Specification.md`
+    - `Software_Design_Description.md`
+    - `Verification_Plan.md`
+    - `Traceability_Matrix.md`
 
 ---
 
-## 🛠️ Setup Instructions
+## 🛠️ Technologies
+
+| Technology | Usage                         |
+|------------|-------------------------------|
+| Java 17    | Application logic             |
+| Swing      | GUI rendering                 |
+| PostgreSQL | Relational data persistence   |
+| JDBC       | Database connection layer     |
+| Maven      | Build and dependency manager  |
+| JUnit 5    | Testing framework             |
+| Git        | Source control (v3 branch)    |
+
+---
+
+## 🚀 Setup Instructions
 
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/RafailBesparas/Aircraft_Maintenance_Tracker.git
 cd Aircraft_Maintenance_Tracker
-git checkout version-2
+git checkout version-3

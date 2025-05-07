@@ -1,72 +1,81 @@
-# Verification Plan (Version 2)
+# Verification Plan (Version 3)
 
 ## 1. Introduction
 
-This document defines the verification strategy for the Aircraft Maintenance Tracker software, Version 2. It covers verification activities to ensure the software meets all requirements as outlined in the Software Requirements Specification (SRS) and supports DO-178C compliance.
+This document defines the verification strategy for the Aircraft Maintenance Tracker software, Version 3. It outlines activities to ensure the software implementation satisfies all functional and safety requirements as specified in the Software Requirements Specification (SRS) and aligns with DO-178C DAL C compliance standards.
 
 ## 2. Verification Scope
 
-The scope includes:
-- GUI launch and event verification
-- CRUD operation validation
-- Maintenance task scheduling
-- PostgreSQL connectivity and schema checks
-- Date validation and error handling
+This version includes new verification focus areas:
+- Authentication flow (real vs decoy)
+- GUI-based feature enablement/disablement
+- Import functionality for CSV/XML/Excel
+- KPI Dashboard metrics
+- Secure audit logging and error handling
 
 ## 3. Verification Environment
 
-| Component        | Description                          |
-|------------------|--------------------------------------|
-| OS               | Windows 10+ / Linux / macOS          |
-| Java Version     | Java SE 17                           |
-| Build Tool       | Maven                                |
-| Database         | PostgreSQL 12+                       |
-| Testing Framework| JUnit 5                              |
+| Component         | Description                         |
+|-------------------|-------------------------------------|
+| OS                | Windows 10+ / Linux / macOS         |
+| Java Version      | Java SE 17                          |
+| Build Tool        | Maven                               |
+| Database          | PostgreSQL 12+                      |
+| Testing Framework | JUnit 5                             |
 
 ## 4. Verification Techniques
 
-| Technique     | Description                                         |
-|---------------|-----------------------------------------------------|
-| Manual Test   | Run GUI and perform test cases by hand             |
-| Unit Test     | JUnit 5 tests for models, database access          |
-| Integration   | GUI + Presenter + DB interactions                  |
-| Static Review | Source code and documentation review               |
+| Technique      | Description                                          |
+|----------------|------------------------------------------------------|
+| Manual Testing | GUI walkthroughs, visual checks, edge-case inputs   |
+| Unit Testing   | JUnit 5 tests for database access and models        |
+| Integration    | Presenter ↔ View ↔ Model interaction validation     |
+| Static Review  | Code walkthroughs for logic and security flaws      |
+| Log Verification | Ensure honeytrap activation logs are written     |
 
 ## 5. Test Plan Summary
 
-| Test ID | Requirement ID | Test Description                                            | Method       | Expected Result                       |
-|---------|----------------|-------------------------------------------------------------|--------------|----------------------------------------|
-| T-01    | REQ-01         | Add Aircraft via GUI                                        | Manual       | Aircraft added to DB and shown in list|
-| T-02    | REQ-01         | Update Aircraft info                                        | Manual       | Changes visible in GUI and DB         |
-| T-03    | REQ-01         | Delete Aircraft                                             | Manual       | Aircraft removed from list and DB     |
-| T-04    | REQ-02         | Test DB connection                                          | JUnit        | DB connection is successful           |
-| T-05    | REQ-03         | Add Maintenance Task via GUI                                | Manual       | Task saved and linked to aircraft     |
-| T-06    | REQ-04         | View Aircraft and Tasks                                     | Manual       | All current data appears in GUI       |
-| T-07    | REQ-05         | Maintenance Task Viewer opens and sorts tasks              | Manual       | Tasks shown sorted by due date        |
-| T-08    | REQ-06         | Invalid date input handling                                 | Manual       | Error shown, task not saved           |
-| T-09    | REQ-07         | Tasks show aircraft model and tail number (not ID)         | Manual       | GUI shows readable aircraft label     |
-| T-10    | REQ-08         | Show error on DB failure or bad input                       | Manual/Test  | Error messages appear in GUI          |
+| Test ID | Requirement ID | Test Description                                                     | Method       | Expected Result                                |
+|--------|----------------|------------------------------------------------------------------------|--------------|-------------------------------------------------|
+| T-01   | REQ-01         | Test login routing: real vs decoy password                             | Manual       | Correct mode activated and view launched        |
+| T-02   | REQ-02         | Add Aircraft via GUI                                                   | Manual       | Aircraft saved to DB and shown in list          |
+| T-03   | REQ-02         | Update/Delete Aircraft                                                 | Manual       | Aircraft updated or removed from view + DB      |
+| T-04   | REQ-03         | Schedule maintenance task                                              | Manual       | Task appears in DB and linked to aircraft       |
+| T-05   | REQ-04         | Retrieve all tasks and aircraft                                        | Manual       | Full data visible in GUI                        |
+| T-06   | REQ-05         | Open MaintenanceTaskViewer and validate sorted output                  | Manual       | Tasks sorted by due date                        |
+| T-07   | REQ-06         | Enter invalid date (e.g., wrong format)                                | Manual       | Error alert shown; task not saved               |
+| T-08   | REQ-07         | Check aircraft info in task display                                    | Manual       | Task shows readable aircraft name/tailNumber    |
+| T-09   | REQ-08         | Import aircraft/tasks from CSV, XML, Excel                             | Manual       | Data inserted into DB; no duplicates            |
+| T-10   | REQ-09         | Attempt duplicate aircraft import                                      | Manual/Test  | Duplicate is skipped or rejected                |
+| T-11   | REQ-10         | Open Dashboard; validate KPI counters                                  | Manual       | Total aircraft, pending, and monthly counts correct |
+| T-12   | REQ-11         | Trigger honeytrap login and inspect log                                | File Check   | Log file entry appears with timestamp           |
+| T-13   | REQ-12         | Simulate DB disconnection or bad input                                 | Manual/Test  | GUI shows relevant error message                |
+| T-14   | REQ-13         | Access aircraft/task features in decoy mode                            | Manual       | Buttons disabled; data fake or hidden           |
 
 ## 6. Acceptance Criteria
 
-- All automated and manual tests pass
-- GUI performs as expected under test cases
-- System gracefully handles errors and invalid input
-- Code review and static analysis show no major issues
+- All critical path and edge-case tests pass
+- No unhandled exceptions or crashes occur during manual interaction
+- Database integrity is maintained after imports and CRUD ops
+- Audit log reflects unauthorized access attempts
+- Static analysis flags are resolved before release
 
 ## 7. Non-Conformance Handling
 
-- Test failures are logged with error output
-- Issue tracker used to assign and track bug fixes
-- All failed tests must be resolved and re-executed
+- All test failures are documented with screenshots or logs
+- GitHub Issues / Jira tickets track fixes
+- Regression testing confirms resolution
+- Tests are re-run after each fix or refactor
 
 ## 8. Tools
 
-- Maven (build/test runner)
-- JUnit 5 (unit tests)
-- PostgreSQL CLI (schema/connection testing)
-- Manual checklist for GUI walkthrough
+- **Maven** – build and test orchestration
+- **JUnit 5** – unit and integration testing
+- **PostgreSQL CLI / pgAdmin** – DB verification
+- **Manual checklists** – for UI flows and honeytrap response
+- **Text diff tools** – to compare logs and imports
+- **Static analysis** – IntelliJ, SonarLint
 
 ---
 
-This verification plan validates the full functionality of Version 2 of the Aircraft Maintenance Tracker and aligns with DO-178C traceability and software assurance expectations.
+This verification plan provides full traceability from requirements to tests, ensuring that Version 3 of the Aircraft Maintenance Tracker fulfills its safety, correctness, and compliance objectives under DO-178C.
